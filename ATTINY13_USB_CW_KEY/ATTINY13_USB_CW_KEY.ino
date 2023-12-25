@@ -20,6 +20,9 @@
 // переменные для работы
 
 int t_delay;
+unsigned long timing; // Переменная для хранения точки отсчета millis
+int dit_on = 0;
+int dash_on = 0;  // переменные обозначающие нажатую точку или тире
 
 /* =================================================== */
 void setup() {
@@ -31,11 +34,21 @@ void setup() {
   digitalWrite(CW_OUT_PIN, LOW);
   pinMode(CW_SOUND_PIN, OUTPUT);
 }
+/* 
+ В этом месте начинается выполнение аналога delay()
+ Вычисляем разницу между текущим моментом и ранее сохраненной точкой отсчета.
+ Если разница больше нужного значения, то выполняем код. 
+ Если нет - ничего не делаем 
 
+ if (millis() - timing > 10000){ // Вместо 10000 подставьте нужное вам значение паузы 
+  timing = millis(); 
+  Serial.println ("10 seconds");
+ }
+ */
 void loop() {
   
 // обрабатываем нажатие манипулятора "точка"
-  if(digitalRead(CW_DIT_PIN) == 0) {
+  if(digitalRead(CW_DIT_PIN) == 0 || dit_on == 1) {
     // расчитываем длительность "точки" по положению потенциометра
     t_delay = analogRead(CW_SPEED_PIN)*(MAX_DIT_TIME - MIN_DIT_TIME)/1023 + MIN_DIT_TIME;
 //    t_delay = analogRead(CW_SPEED_PIN)/10 + MIN_DIT_TIME;
@@ -43,18 +56,21 @@ void loop() {
     digitalWrite(CW_OUT_PIN, HIGH);
     // включаем звуковой тон
     analogWrite(CW_SOUND_PIN, 128);
-    // задержка длительности звука/нажатия ключа      
+    // задержка длительности звука/нажатия ключа   
+    if (digitalread(CW_DASH_PIN) == 0) dash_on = 1;   
     delay(t_delay);
     // выключаем звуковой тон      
     analogWrite(CW_SOUND_PIN, 0);
     // "отпускаем" ключ
     digitalWrite(CW_OUT_PIN, LOW);
+    if (digitalread(CW_DASH_PIN) == 0) dash_on = 1;
+    dit_on = 0;
     // выдерживаем паузу между точками/тире      
     delay(t_delay);
   }
 
 //   обрабатываем нажатие манипулятора "тире"
-  if(digitalRead(CW_DASH_PIN) == 0) {
+  if(digitalRead(CW_DASH_PIN) == 0 || dash_on == 1) {
     // расчитываем длительность "точки" по положению потенциометра
     t_delay = analogRead(CW_SPEED_PIN)*(MAX_DIT_TIME - MIN_DIT_TIME)/1023 + MIN_DIT_TIME;
 //    t_delay = analogRead(CW_SPEED_PIN)/10 + MIN_DIT_TIME;
@@ -64,11 +80,14 @@ void loop() {
     analogWrite(CW_SOUND_PIN, 128);
     // задержка длительности звука/нажатия ключа      
     // так как у нас тут "тире", то длительность его в 3 раза больше, чем для точки
+    if (digitalread(CW_DIT_PIN) == 0) dit_on = 1;  
     delay(t_delay*3);
     // выключаем звуковой тон      
     analogWrite(CW_SOUND_PIN, 0);
     // "отпускаем" ключ
     digitalWrite(CW_OUT_PIN, LOW);
+    if (digitalread(CW_DIT_PIN) == 0) dit_on = 1;  
+    dash_on = 0;
     // выдерживаем паузу между точками/тире      
     delay(t_delay);
   }
