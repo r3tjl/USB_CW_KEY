@@ -10,8 +10,8 @@
 #define MAX_DIT_TIME 150    // 150
 
 // Определяем контакты для подключения электронного ключа
-#define CW_DIT_PIN PB2
-#define CW_DASH_PIN PB1
+#define CW_DIT_PIN PB1      // поменяны местами точка и тире от исходной схемы для совместимости
+#define CW_DASH_PIN PB2     // с модифицированной прошивкой от ra3rbe http://ra3rbe.qrz.ru/cwavr.htm
 // Контакт вывода звука для самоконтроля
 #define CW_SOUND_PIN PB0
 // контакт "ключа".
